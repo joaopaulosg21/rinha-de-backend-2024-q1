@@ -22,8 +22,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.55"
-          memory: "200MB"
+          cpus: "0.3"
+          memory: "215MB"
 
   api02:
     # Essa sintaxe reusa o que foi declarado em 'api01'.
@@ -50,7 +50,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: "0.2"
+          cpus: "0.15"
           memory: "20MB"
 
   db:
@@ -62,6 +62,8 @@ services:
       - POSTGRES_DB=backend
     ports:
       - "5432:5432"
+    volumes:
+      - ./script.sql:/docker-entrypoint-initdb.d/script.sql
     deploy:
       resources:
         limits:
@@ -69,8 +71,8 @@ services:
           # aqui declarados é de 1.5 unidades de CPU e 550MB
           # de memória. A distribuição feita aqui é apenas
           # um exemplo – distribua como quiser.
-          cpus: "0.2"
-          memory: "130MB"
+          cpus: "0.75"
+          memory: "100MB"
 
 # O uso do modo `bridge` deve ser adequado à carga que será usada no teste.
 # A edição anterior se beneficiou do modo host pois o volume de requisições

@@ -1,9 +1,31 @@
-INSERT INTO clients(id, limite, saldo) VALUES (1,100000,0);
-INSERT INTO clients(id, limite, saldo) VALUES (2,80000,0);
-INSERT INTO clients(id, limite, saldo) VALUES (3,1000000,0);
-INSERT INTO clients(id, limite, saldo) VALUES (4,10000000,0);
-INSERT INTO clients(id, limite, saldo) VALUES (5,500000,0);
+CREATE TABLE clients (
+	id SERIAL PRIMARY KEY,
+	limite INTEGER NOT NULL,
+    saldo INTEGER NOT NULL
+);
 
+CREATE TABLE transactions (
+	id SERIAL PRIMARY KEY,
+	client_id INTEGER NOT NULL,
+	valor INTEGER NOT NULL,
+	tipo CHAR(1) NOT NULL,
+	descricao VARCHAR(10) NOT NULL,
+	realizada_em TIMESTAMP NOT NULL DEFAULT NOW(),
+	CONSTRAINT fk_clients
+		FOREIGN KEY (client_id) REFERENCES clients(id)
+);
+
+DO $$
+BEGIN
+    INSERT INTO clients(id, limite, saldo) 
+    VALUES 
+        (1,100000,0),
+        (2,80000,0),
+        (3,1000000,0),
+        (4,10000000,0),
+        (5,500000,0);
+END; 
+$$;
 
 CREATE OR REPLACE FUNCTION funcoes(cliente_id int, valor_d int, descricao VARCHAR(10), tipo VARCHAR(1))
     RETURNS int 
