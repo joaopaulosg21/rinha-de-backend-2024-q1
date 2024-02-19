@@ -13,9 +13,13 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import projeto.api.backend2.dto.ExtratoResponseDTO;
 import projeto.api.backend2.dto.ResponseDTO;
+import projeto.api.backend2.dto.SaldoDTO;
+import projeto.api.backend2.dto.TransactionDTO;
 import projeto.api.backend2.exceptions.UnprocessableEntity;
 import projeto.api.backend2.mappers.ClientMapper;
+import projeto.api.backend2.mappers.TransactionMapper;
 import projeto.api.backend2.model.Client;
 
 @Service
@@ -78,22 +82,21 @@ public class ClientsService {
         return new ResponseDTO(client.getLimite(), updated.getSaldo());
     }
 
-    public Object extrato(long userId) {
+    public ExtratoResponseDTO extrato(long userId) {
         Client client = this.findClientById(userId);
 
-        List<Map<String, Object>> list = jdbcTemplate.queryForList(
+        List<TransactionDTO> list = jdbcTemplate.query(
                 "SELECT * FROM transactions WHERE transactions.client_id=" + client.getId()
-                        + " ORDER BY realizada_em DESC LIMIT 10");
+                        + " ORDER BY realizada_em DESC LIMIT 10",
+                new TransactionMapper());
 
         if (list.size() == 0) {
-            Map<String, Object> saldo = Map.of("total", 0, "data_extrato", LocalDateTime.now(), "limite",
-                    client.getLimite());
-            return Map.of("saldo", saldo, "ultimas_transacoes", list);
+            SaldoDTO saldo = new SaldoDTO(0, LocalDateTime.now(), client.getLimite());
+            return new ExtratoResponseDTO(saldo, list);
         }
 
-        Map<String, Object> saldo = Map.of("total", client.getSaldo(), "data_extrato", LocalDateTime.now(), "limite",
-                client.getLimite());
-        return Map.of("saldo", saldo, "ultimas_transacoes", list);
+        SaldoDTO saldo = new SaldoDTO(client.getSaldo(), LocalDateTime.now(), client.getLimite());
+        return new ExtratoResponseDTO(saldo, list);
     }
 
     private static boolean isInteger(Object valor) {
